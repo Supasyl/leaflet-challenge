@@ -13,14 +13,14 @@ function createFeatures(earthquakeData) {
 
     // circle color function
     function getColor(mag) {
-        return      mag > 7 ? '#91003f' :
-                    mag > 6 ? '#ce1256' :
-                    mag > 5 ? '#e7298a' :
-                    mag > 4 ? '#df65b0' :
-                    mag > 3 ? '#c994c7' :
-                    mag > 2 ? '#d4b9da' :
-                    mag > 1 ? '#e7e1ef' :
-                            '#f7f4f9' ;
+        return      mag > 7 ? '#990000' :
+                    mag > 6 ? '#d7301f' :
+                    mag > 5 ? '#ef6548' :
+                    mag > 4 ? '#fc8d59' :
+                    mag > 3 ? '#fdbb84' :
+                    mag > 2 ? '#fdd49e' :
+                    mag > 1 ? '#fee8c8' :
+                            '#fff7ec' ;
     }
     
     // get radius for circle size
@@ -47,27 +47,6 @@ function createFeatures(earthquakeData) {
     // get label names
     // function getLabels(feature, label) {
    
-    var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function (myMap) {
-
-        var div = L.DomUtil.create('div', 'info legend'),
-            mag = [0, 1, 2, 3, 4, 5, 6, 7],
-            labels = [],
-            from, to;
-
-        for (var i = 0; i < feature.properties.mag.length; i++) {
-            from = mag[i];
-            to = mag[i + 1];
-
-            labels.push(
-                '<i style="background:' + getColor(from + 1) + '"></i> ' +
-                from + (to ? '&ndash;' + to : '+'));
-        }
-
-        div.innerHTML = labels.join('<br>');
-        return div;
-    };
-    
     // add features to a layer on the map
     var earthquakes = L.geoJSON(earthquakeData, {
         pointToLayer: function (feature, latlng) {
@@ -78,10 +57,10 @@ function createFeatures(earthquakeData) {
         });
 
     // sending the earthquakes layer to the createMap function
-    createMap(earthquakes, legend);
+    createMap(earthquakes);
 };
 
-function createMap(earthquakes, legend) {
+function createMap(earthquakes) {
     
     // adding tile layer
     var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
@@ -101,7 +80,6 @@ function createMap(earthquakes, legend) {
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
         Earthquakes: earthquakes,
-        Legend: legend,
     };
 
     // creating map object
@@ -111,13 +89,62 @@ function createMap(earthquakes, legend) {
         layers: [lightmap, earthquakes]
     });
 
-    // add legend to the map
-    legend.addTo(myMap);
+    
 
     // create layer control
     L.control.layers(baseMaps, overlayMaps, {
         collapsed: false,
     }).addTo(myMap);
+
+    // create the legend
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (myMap) {
+
+        // circle color function
+        function getColor(mag) {
+            return      mag > 7 ? '#990000' :
+                        mag > 6 ? '#d7301f' :
+                        mag > 5 ? '#ef6548' :
+                        mag > 4 ? '#fc8d59' :
+                        mag > 3 ? '#fdbb84' :
+                        mag > 2 ? '#fdd49e' :
+                        mag > 1 ? '#fee8c8' :
+                                '#fff7ec' ;
+        }
+
+        var div = L.DomUtil.create('div', 'info legend'),
+            mag = [0, 1, 2, 3, 4, 5, 6, 7],
+            labels = [],
+            from, to;
+
+        for (var i = 0; i < mag.length; i++) {
+            from = mag[i];
+            to = mag[i + 1];
+
+            labels.push(
+                '<i style="background:' + getColor(from + 1) + '"></i> ' +
+                from + (to ? '&ndash;' + to : '+'));
+        }
+
+        div.innerHTML = labels.join('<br>');
+        return div;
+    };
+    // add legend to the map
+    legend.addTo(myMap);
 };
 
-// .setView([37.8, -96], 4)
+
+//  // circle color function
+//  function getColor(mag) {
+//     return      mag > 7 ? '#91003f' :
+//                 mag > 6 ? '#ce1256' :
+//                 mag > 5 ? '#e7298a' :
+//                 mag > 4 ? '#df65b0' :
+//                 mag > 3 ? '#c994c7' :
+//                 mag > 2 ? '#d4b9da' :
+//                 mag > 1 ? '#e7e1ef' :
+//                         '#f7f4f9' ;
+// }
+    
+    
+
