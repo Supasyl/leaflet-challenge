@@ -1,9 +1,10 @@
 // load in geojson data
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'
-
+console.log("hello")
 // retrieve data and save data to object
 d3.json(url, function(data) {
-    createFeatures(data.features);
+    // createFeatures(data.features);
+    console.log(data.features);
 });
 
 // var geojson;
@@ -25,7 +26,7 @@ function createFeatures(earthquakeData) {
     
     // get radius for circle size
     function getRadius(mag) {
-        return mag * 5;
+        return mag * 10;
     }
 
     // circle style function
@@ -40,49 +41,51 @@ function createFeatures(earthquakeData) {
 
     // control that shows earthquake info in popup
     function onEachFeature(feature, layer) {
-        layer.bindPopup('<h3>Type: ' + feature.properties.type + '</h3><hr><p>Date: ' + new Date(feature.properties.time) +
-            '</p><p>Magnitude: ' + feature.properties.mag + '</p>');
+        layer.bindPopup('<h3>Type:' + feature.properties.type + '</h3><hr><p>Date:' + new Date(feature.properties.time) +
+            '</p><br><p>Magnitude:' + feature.properties.mag + '</p>');
     };
 
-    // get label names
-    // function getLabels(feature, label) {
-   
-    var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function (myMap) {
+    // // add legend to the map
+    // var legend = L.control({position: 'bottomright'});
 
-        var div = L.DomUtil.create('div', 'info legend'),
-            mag = [0, 1, 2, 3, 4, 5, 6, 7],
-            labels = [],
-            from, to;
+    // legend.onAdd = function (myMap) {
 
-        for (var i = 0; i < feature.properties.mag.length; i++) {
-            from = mag[i];
-            to = mag[i + 1];
+    //     var div = L.DomUtil.create('div', 'info legend'),
+    //         mag = [0, 1, 2, 3, 4, 5, 6, 7],
+    //         labels = [],
+    //         from, to;
 
-            labels.push(
-                '<i style="background:' + getColor(from + 1) + '"></i> ' +
-                from + (to ? '&ndash;' + to : '+'));
-        }
+    //     for (var i = 0; i < feature.properties.mag.length; i++) {
+    //         from = mag[i];
+    //         to = mag[i + 1];
 
-        div.innerHTML = labels.join('<br>');
-        return div;
-    };
+    //         labels.push(
+    //             '<i style="background:' + getColor(from + 1) + '"></i> ' +
+    //             from + (to ? '&ndash;' + to : '+'));
+    //     }
+
+    //     div.innerHTML = labels.join('<br>');
+    //     return div;
+    // };
+
+    // legend.addTo(myMap);
     
     // add features to a layer on the map
     var earthquakes = L.geoJSON(earthquakeData, {
-        pointToLayer: function (feature, latlng) {
+        pointToLayer: function (geoJsonPoint, latlng) {
             return L.circleMarker(latlng);
         },
         style: circleStyle,
         onEachFeature: onEachFeature,
-        });
+    });
 
-    // sending the earthquakes layer to the createMap function
-    createMap(earthquakes, legend);
+    // sending the earthquakes layer to the createMpa function
+    createMap(earthquakes);
+    // createMap(L.layerGroup(earthquakes));
 };
 
-function createMap(earthquakes, legend) {
-    
+function createMap(earthquakes) {
+    console.log(hello);
     // adding tile layer
     var lightmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
         attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
@@ -101,7 +104,6 @@ function createMap(earthquakes, legend) {
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
         Earthquakes: earthquakes,
-        Legend: legend,
     };
 
     // creating map object
@@ -110,9 +112,6 @@ function createMap(earthquakes, legend) {
         zoom: 5,
         layers: [lightmap, earthquakes]
     });
-
-    // add legend to the map
-    legend.addTo(myMap);
 
     // create layer control
     L.control.layers(baseMaps, overlayMaps, {
