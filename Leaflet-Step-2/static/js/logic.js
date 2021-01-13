@@ -7,7 +7,7 @@ d3.json(url, function(data) {
     createFeatures(data.features);
 });
 
-
+d3.json(file, L.geoJSON());
 
 // Grab earthquake data with d3
 function createFeatures(earthquakeData) {
@@ -120,12 +120,12 @@ function createMap(earthquakes) {
         'Satellite': satellitemap,
     };
 
-    
+    plateLines = new L.LayerGroup();
 
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
         'Earthquakes': earthquakes,
-        // 'Tactonic plates': plateLayer,
+        'Tactonic plates': plateLines,
     };
 
     // creating map object
@@ -179,6 +179,14 @@ function createMap(earthquakes) {
     };
     // add legend to the map
     legend.addTo(myMap);
+
+    // 
+    d3.json(file, function(platedata){
+        L.geoJson(platedata, {
+            color: "orange", 
+            weight: 2}).addTo(plateLines);
+    });
+    plateLines.addTo(myMap);
 
 };
 

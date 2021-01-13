@@ -2,29 +2,11 @@
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'
 var file = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json'
 
-var plateLines = [];
+
 // retrieve data and save data to object
 d3.json(url, function(data) {
     createFeatures(data.features);
-    d3.json(file, function(data) {
-        L.geoJSON(data, {
-            // style: function(feature) {
-            //     return {
-            //         color: 'red',
-            //         weight: 2,
-            //     };
-            // },
-            onEachFeature: function(feature, layer) {
-                plateLines.push(L.polyline(feature.coordinates));
-            },
-        })
-        var plateLayer = L.layerGroup(plateLine, {
-            color: 'red',
-            weight: 2,
-        }).addTo(myMap);
-    });
 });
-
 
 
 // Grab data with d3
@@ -94,9 +76,12 @@ function createMap(earthquakes) {
         'Light Map': lightmap,
     };
 
+    var plateLines = new L.LayerGroup();
+
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
-        Earthquakes: earthquakes,
+        'Earthquakes': earthquakes,
+        'TactonicPlates': plateLines,
     };
 
     // creating map object
@@ -150,6 +135,15 @@ function createMap(earthquakes) {
     };
     // add legend to the map
     legend.addTo(myMap);
+
+    d3.json("static/data/tectonic_plate_boundaries.json",
+    function(platedata){
+L.geoJson(platedata, {
+    color: "orange",
+    weight: 2
+}).addTo(plateLines);
+    });
+    plateLines.addTo(myMap);
 };
 
     
