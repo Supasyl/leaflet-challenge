@@ -23,7 +23,7 @@ html {
 }
 
 .leaflet-popup-content-wrapper {
-  background-color: #fee8c8
+  background-color: #e7e1ef
 }
 
 /* CSS from the Leaflet-Choropleth documentation */
@@ -32,7 +32,7 @@ html {
   font: 12px Arial, Helvetica, sans-serif;
   font-weight: bold;
   color: #555;
-  background: #fee8c8 !important;
+  background: #e7e1ef !important;
   border-radius: 5px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
 }

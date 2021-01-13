@@ -1,45 +1,27 @@
 // load in geojson data
 var url = 'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson'
-var file = 'https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json'
+var file = 'static/data/tectonic_plate_boundaries.json'
 
-var plateLines = [];
-// retrieve data and save data to object
+// retrieve earthquake data and save data to object
 d3.json(url, function(data) {
     createFeatures(data.features);
-    d3.json(file, function(data) {
-        L.geoJSON(data, {
-            // style: function(feature) {
-            //     return {
-            //         color: 'red',
-            //         weight: 2,
-            //     };
-            // },
-            onEachFeature: function(feature, layer) {
-                plateLines.push(L.polyline(feature.coordinates));
-            },
-        })
-        var plateLayer = L.layerGroup(plateLine, {
-            color: 'red',
-            weight: 2,
-        }).addTo(myMap);
-    });
 });
 
 
 
-// Grab data with d3
+// Grab earthquake data with d3
 function createFeatures(earthquakeData) {
 
     // circle color function
     function getColor(mag) {
-        return      mag > 7 ? '#990000' :
-                    mag > 6 ? '#d7301f' :
-                    mag > 5 ? '#ef6548' :
-                    mag > 4 ? '#fc8d59' :
-                    mag > 3 ? '#fdbb84' :
-                    mag > 2 ? '#fdd49e' :
-                    mag > 1 ? '#fee8c8' :
-                            '#fff7ec' ;
+        return      mag > 7 ? '#91003f' :
+                    mag > 6 ? '#ce1256' :
+                    mag > 5 ? '#e7298a' :
+                    mag > 4 ? '#df65b0' :
+                    mag > 3 ? '#c994c7' :
+                    mag > 2 ? '#d4b9da' :
+                    mag > 1 ? '#e7e1ef' :
+                            '#f7f4f9' ;
     }
     
     // get radius for circle size
@@ -63,7 +45,7 @@ function createFeatures(earthquakeData) {
             '</p><p>Magnitude: ' + feature.properties.mag + '</p>');
     };
    
-    // add features to a layer on the map
+    // add earthquake features to a layer on the map
     var earthquakes = L.geoJSON(earthquakeData, {
         pointToLayer: function (feature, latlng) {
             return L.circleMarker(latlng);
@@ -71,6 +53,28 @@ function createFeatures(earthquakeData) {
         style: circleStyle,
         onEachFeature: onEachFeature,
         });
+
+    // retrieve tactonic plate data and save to data object
+    d3.json(file, function(data) {
+        createPlates(data.features);
+        // console.log(data.features);
+    });
+
+    // var plateLayer; // no change in console.log
+
+    // create tactonic plates to a layer on the map
+    function createPlates(plateLineData) {
+        return plateLayer = L.geoJSON(plateLineData, {
+                function (feature, latlngs) {
+                    return L.polyline(latlngs);
+                },
+                color: 'red',
+                weight: 3,
+                opacity: 0.7,
+        }),
+        console.log(plateLayer);
+    };
+    // console.log(plateLayer); // =undefined
 
     // sending the earthquakes layer to the createMap function
     createMap(earthquakes);
@@ -89,20 +93,45 @@ function createMap(earthquakes) {
         accessToken: API_KEY
     });
 
+    // adding darkmap layer
+    var darkmap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+        attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+        tileSize: 512,
+        maxZoom: 18,
+        zoomOffset: -1,
+        id: "mapbox/dark-v10",
+        accessToken: API_KEY
+    });
+
+    // adding satellite layer
+    var satellitemap = L.tileLayer("https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
+        attribution: "© <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
+        tileSize: 512,
+        maxZoom: 18,
+        zoomOffset: -1,
+        id: "mapbox/satellite-v9",
+        accessToken: API_KEY
+    });
+
     // Define a baseMaps object to hold our base layers
     var baseMaps = {
         'Light Map': lightmap,
+        'Dark map': darkmap,
+        'Satellite': satellitemap,
     };
+
+    
 
     // Create overlay object to hold our overlay layer
     var overlayMaps = {
-        Earthquakes: earthquakes,
+        'Earthquakes': earthquakes,
+        // 'Tactonic plates': plateLayer,
     };
 
     // creating map object
     var myMap = L.map('map', {
-        center: [37.09, -95.71],
-        zoom: 5,
+        center: [0, -0],
+        zoom: 2,
         layers: [lightmap, earthquakes]
     });
 
@@ -117,14 +146,14 @@ function createMap(earthquakes) {
 
         // circle color function
         function getColor(mag) {
-            return      mag > 7 ? '#990000' :
-                        mag > 6 ? '#d7301f' :
-                        mag > 5 ? '#ef6548' :
-                        mag > 4 ? '#fc8d59' :
-                        mag > 3 ? '#fdbb84' :
-                        mag > 2 ? '#fdd49e' :
-                        mag > 1 ? '#fee8c8' :
-                                '#fff7ec' ;
+            return      mag > 7 ? '#91003f' :
+                        mag > 6 ? '#ce1256' :
+                        mag > 5 ? '#e7298a' :
+                        mag > 4 ? '#df65b0' :
+                        mag > 3 ? '#c994c7' :
+                        mag > 2 ? '#d4b9da' :
+                        mag > 1 ? '#e7e1ef' :
+                                '#f7f4f9' ;
         }
 
         var div = L.DomUtil.create('div', 'info legend'),
@@ -150,7 +179,9 @@ function createMap(earthquakes) {
     };
     // add legend to the map
     legend.addTo(myMap);
+
 };
+
 
     
     
